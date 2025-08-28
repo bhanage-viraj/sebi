@@ -1,0 +1,9 @@
+[programs.localnet]
+sebi = "FPrNfqSjEL59H3PAEzXK9gU9VwAFXLrMwyFeNZ3dKb7o" # replace after deploy
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[registry]
+url = "https://api.devnet.solana.com"
