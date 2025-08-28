@@ -1,4 +1,8 @@
 [workspace]
 members = [
-  "programs/sebi"
+    "programs/sebi"
 ]
+resolver = "2"  # edition 2021 requires this
+
+[profile.release]
+overflow-checks = true
