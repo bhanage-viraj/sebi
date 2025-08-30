@@ -1,8 +1,20 @@
-[workspace]
-members = [
-    "programs/sebi"
-]
-resolver = "2"  # edition 2021 requires this
+[package]
+name = "sebi"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
 
-[profile.release]
-overflow-checks = true
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "sebi"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.31.1"
+anchor-spl = "0.31.1"

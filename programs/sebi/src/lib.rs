@@ -13,7 +13,7 @@ pub mod sebi {
 
     pub fn initialize_market(
         ctx: Context<InitializeMarket>,
-        price_per_token: u64, // CHANGED from u128
+        price_per_token: u64,
     ) -> Result<()> {
         initialize::handler(ctx, price_per_token)
     }
@@ -26,7 +26,7 @@ pub mod sebi {
         sell::handler(ctx, amount)
     }
 
-    pub fn update_price(ctx: Context<UpdatePrice>, new_price: u64) -> Result<()> { // CHANGED from u128
+    pub fn update_price(ctx: Context<UpdatePrice>, new_price: u64) -> Result<()> {
         update_price::handler(ctx, new_price)
     }
 
@@ -38,11 +38,3 @@ pub mod sebi {
         withdraw::handler(ctx, amount, is_usdc)
     }
 }
-
-// Re-export contexts for use in modules
-pub use instructions::initialize::InitializeMarket;
-pub use instructions::buy::Buy;
-pub use instructions::sell::Sell;
-pub use instructions::update_price::UpdatePrice;
-pub use instructions::pause::Pause;
-pub use instructions::withdraw::Withdraw;
