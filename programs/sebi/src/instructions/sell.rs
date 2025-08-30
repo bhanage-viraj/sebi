@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use crate::state::Market;
 use crate::errors::MarketError;
+use crate::instructions::buy::{TradeEvent, TradeSide}; // Import event from buy module
 
 #[derive(Accounts)]
 pub struct Sell<'info> {
@@ -32,10 +33,10 @@ pub fn handler(ctx: Context<Sell>, amount: u64) -> Result<()> {
         return err!(MarketError::MarketPaused);
     }
 
-    let price_u128 = market.price_per_token;
-    let amount_u128 = amount as u128;
-    let total_price_u128 = price_u128.checked_mul(amount_u128).ok_or(MarketError::MathOverflow)?;
-    let total_price_u64 = total_price_u128.try_into().map_err(|_| MarketError::MathOverflow)?;
+    // Perform math using u64
+    let total_price = market.price_per_token
+        .checked_mul(amount)
+        .ok_or(MarketError::MathOverflow)?;
 
     // transfer bond tokens from seller -> vault (seller signs)
     let cpi_accounts_bond = Transfer {
@@ -48,9 +49,9 @@ pub fn handler(ctx: Context<Sell>, amount: u64) -> Result<()> {
         amount,
     )?;
 
-    // ensure vault_usdc has enough balance (optional check)
+    // ensure vault_usdc has enough balance
     let vault_balance = ctx.accounts.vault_usdc.amount;
-    if vault_balance < total_price_u64 {
+    if vault_balance < total_price {
         return err!(MarketError::InsufficientVaultFunds);
     }
 
@@ -64,7 +65,7 @@ pub fn handler(ctx: Context<Sell>, amount: u64) -> Result<()> {
     };
     token::transfer(
         CpiContext::new_with_signer(ctx.accounts.token_program.to_account_info(), cpi_accounts_usdc, signer),
-        total_price_u64,
+        total_price,
     )?;
 
     emit!(TradeEvent {
@@ -72,7 +73,7 @@ pub fn handler(ctx: Context<Sell>, amount: u64) -> Result<()> {
         trader: ctx.accounts.seller.key(),
         side: TradeSide::Sell,
         amount,
-        price: price_u128,
+        price: market.price_per_token, // Use the u64 price
     });
 
     Ok(())

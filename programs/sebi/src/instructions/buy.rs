@@ -34,13 +34,10 @@ pub fn handler(ctx: Context<Buy>, amount: u64) -> Result<()> {
         return err!(MarketError::MarketPaused);
     }
 
-    // price_per_token is u128; compute total_price = amount * price
-    let price_u128 = market.price_per_token;
-    let amount_u128 = amount as u128;
-    let total_price_u128 = price_u128.checked_mul(amount_u128).ok_or(MarketError::MathOverflow)?;
-
-    // assume USDC decimals are 6: total_price_u128 already scaled appropriately by admin
-    let total_price_u64 = total_price_u128.try_into().map_err(|_| MarketError::MathOverflow)?;
+    // Perform math using u64, which is consistent with SPL token amounts.
+    let total_price = market.price_per_token
+        .checked_mul(amount)
+        .ok_or(MarketError::MathOverflow)?;
 
     // transfer USDC from buyer -> vault_usdc
     let cpi_accounts_usdc = Transfer {
@@ -50,7 +47,7 @@ pub fn handler(ctx: Context<Buy>, amount: u64) -> Result<()> {
     };
     token::transfer(
         CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts_usdc),
-        total_price_u64,
+        total_price,
     )?;
 
     // transfer bonds from vault -> buyer, signed by PDA
@@ -71,7 +68,7 @@ pub fn handler(ctx: Context<Buy>, amount: u64) -> Result<()> {
         trader: ctx.accounts.buyer.key(),
         side: TradeSide::Buy,
         amount,
-        price: price_u128,
+        price: market.price_per_token, // Use the u64 price
     });
 
     Ok(())
@@ -83,7 +80,7 @@ pub struct TradeEvent {
     pub trader: Pubkey,
     pub side: TradeSide,
     pub amount: u64,
-    pub price: u128,
+    pub price: u64, // Changed from u128 to u64
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Debug)]

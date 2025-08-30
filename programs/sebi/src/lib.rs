@@ -13,7 +13,7 @@ pub mod sebi {
 
     pub fn initialize_market(
         ctx: Context<InitializeMarket>,
-        price_per_token: u128,
+        price_per_token: u64, // CHANGED from u128
     ) -> Result<()> {
         initialize::handler(ctx, price_per_token)
     }
@@ -26,7 +26,7 @@ pub mod sebi {
         sell::handler(ctx, amount)
     }
 
-    pub fn update_price(ctx: Context<UpdatePrice>, new_price: u128) -> Result<()> {
+    pub fn update_price(ctx: Context<UpdatePrice>, new_price: u64) -> Result<()> { // CHANGED from u128
         update_price::handler(ctx, new_price)
     }
 

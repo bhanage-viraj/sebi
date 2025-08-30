@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::state::Market;
 
 #[derive(Accounts)]
-#[instruction(price_per_token: u128)]
+#[instruction(price_per_token: u64)] // CHANGED from u128
 pub struct InitializeMarket<'info> {
     #[account(
         init,
@@ -44,7 +44,7 @@ pub struct InitializeMarket<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<InitializeMarket>, price_per_token: u128) -> Result<()> {
+pub fn handler(ctx: Context<InitializeMarket>, price_per_token: u64) -> Result<()> { // CHANGED from u128
     let market = &mut ctx.accounts.market;
     market.bond_mint = ctx.accounts.bond_mint.key();
     market.usdc_mint = ctx.accounts.usdc_mint.key();

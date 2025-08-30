@@ -9,7 +9,7 @@ pub struct UpdatePrice<'info> {
     pub admin: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<UpdatePrice>, new_price: u128) -> Result<()> {
+pub fn handler(ctx: Context<UpdatePrice>, new_price: u64) -> Result<()> { // CHANGED from u128
     let market = &mut ctx.accounts.market;
     if ctx.accounts.admin.key() != market.admin {
         return err!(MarketError::Unauthorized);
