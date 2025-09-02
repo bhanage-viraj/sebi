@@ -8,17 +8,16 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
-    "@solana/spl-token": "^0.4.8",
-    "chai": "^4.3.10"
+    "@solana/spl-token": "^0.4.8"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.14.0",
-    "mocha": "^10.2.0",
+    "chai": "^6.0.1",
+    "mocha": "^10.8.2",
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
 }
-
