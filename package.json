@@ -1,26 +1,24 @@
 {
-  "name": "sebi",
+  "name": "bond-market",
   "version": "0.1.0",
   "scripts": {
-    "build": "anchor build",
-    "test": "anchor test",
-    "lint": "eslint --ext .ts,.js .",
-    "client": "ts-node app/client.ts"
+    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "test": "anchor test"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
     "@solana/spl-token": "^0.4.8",
-    "@solana/web3.js": "^1.95.1"
+    "chai": "^4.3.10"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.16",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "^18.20.4",
-    "chai": "^4.3.7",
-    "eslint": "^8.57.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.14.0",
     "mocha": "^10.2.0",
-    "prettier": "^2.8.8",
-    "ts-mocha": "^10.0.0",
-    "typescript": "^4.9.5"
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
+
