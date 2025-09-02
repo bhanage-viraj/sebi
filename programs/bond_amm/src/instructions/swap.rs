@@ -31,18 +31,24 @@ pub struct InitializeAmm<'info> {
     )]
     pub market_authority: AccountInfo<'info>,
 
+    /// SPL Bond mint
+    pub bond_mint: Account<'info, Mint>,
+
     #[account(
         init,
         payer = admin,
-        token::mint = market.bond_mint,
+        token::mint = bond_mint,
         token::authority = market_authority
     )]
     pub bond_vault: Account<'info, TokenAccount>,
     
+    /// SPL Quote mint
+    pub quote_mint: Account<'info, Mint>,
+
     #[account(
         init,
         payer = admin,
-        token::mint = market.quote_mint,
+        token::mint = quote_mint,
         token::authority = market_authority
     )]
     pub quote_vault: Account<'info, TokenAccount>,
@@ -140,9 +146,10 @@ pub fn handle_swap(ctx: Context<Swap>, amount_in: u64, swap_for_bond: bool) -> R
     anchor_spl::token::transfer(cpi_ctx_in, amount_in as u64)?;
     
     // Transfer from vault to user
+    let market_key = ctx.accounts.market.key();
     let seeds = &[
-        b"authority",
-        ctx.accounts.market.to_account_info().key.as_ref(),
+        b"authority".as_ref(),
+        market_key.as_ref(),
         &[ctx.accounts.market.market_authority_bump],
     ];
     let signer = &[&seeds[..]];

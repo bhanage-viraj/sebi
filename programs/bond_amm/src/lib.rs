@@ -7,7 +7,7 @@ pub mod constants;
 
 use instructions::*;
 
-declare_id!("AMMprx1CrxGusn31G4eQJ5z2t4s2jF9s3jG4eQJ5z");
+declare_id!("Fg6PaFpoGXkYsidMpWxTWqk6W2BeZ7FEfcYkgSQhZt5v");
 
 #[program]
 pub mod bond_amm {
@@ -22,26 +22,6 @@ pub mod bond_amm {
     pub fn swap(ctx: Context<Swap>, amount_in: u64, swap_for_bond: bool) -> Result<()> {
         instructions::swap::handle_swap(ctx, amount_in, swap_for_bond)
     }
-
-    // Placeholder for future implementation
-    pub fn claim_coupon(_ctx: Context<ClaimCoupon>) -> Result<()> {
-        Ok(())
-    }
-
-    // Placeholder for future implementation
-    pub fn redeem_bond(_ctx: Context<Redeem>) -> Result<()> {
-        Ok(())
-    }
 }
 
-
-#[derive(Accounts)]
-pub struct ClaimCoupon<'info> {
-    // Define accounts for claiming coupon
-}
-
-#[derive(Accounts)]
-pub struct Redeem<'info> {
-    // Define accounts for redeeming bond
-}
 

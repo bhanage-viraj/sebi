@@ -6,8 +6,8 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-bond_factory = "FACToRYprx1CrxGusn31G4eQJ5z2t4s2jF9s3jG4eQJ5z"
-bond_amm = "AMMprx1CrxGusn31G4eQJ5z2t4s2jF9s3jG4eQJ5z"
+bond_factory = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
+bond_amm = "Fg6PaFpoGXkYsidMpWxTWqk6W2BeZ7FEfcYkgSQhZt5v"
 
 [registry]
 url = "https://api.apr.dev"

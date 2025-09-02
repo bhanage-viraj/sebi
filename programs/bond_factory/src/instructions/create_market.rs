@@ -71,8 +71,8 @@ pub fn handler(
     market.is_matured = false;
     
     // Store all bumps correctly.
-    market.market_bump = ctx.bumps["market"];
-    market.market_authority_bump = ctx.bumps["market_authority"];
+    market.market_bump = ctx.bumps.market;
+    market.market_authority_bump = ctx.bumps.market_authority;
     
     msg!("Market created for issuer: {}", market.issuer_name);
     Ok(())
