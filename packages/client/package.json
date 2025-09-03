@@ -1,12 +1,30 @@
 {
-  "name": "client",
+  "name": "@bond-market/client",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "TypeScript client for Bond Market Solana programs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && npm run copy-idl",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "copy-idl": "cp ../../blockchain/target/idl/*.json dist/",
+    "prepublishOnly": "npm run clean && npm run build"
   },
-  "keywords": [],
+  "keywords": ["solana", "blockchain", "bonds", "amm", "defi"],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/web3.js": "^1.87.0",
+    "@solana/spl-token": "^0.4.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/web3.js": "^1.87.0",
+    "@solana/spl-token": "^0.4.8"
+  }
 }

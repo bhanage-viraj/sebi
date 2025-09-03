@@ -1,0 +1,215 @@
+{
+  "address": "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+  "metadata": {
+    "name": "bond_factory",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Creates new bond markets"
+  },
+  "instructions": [
+    {
+      "name": "create_market",
+      "docs": [
+        "Creates a new bond market.",
+        "This function initializes a new SPL token for the bond,",
+        "creates a market state account to hold its metadata,",
+        "and sets up a PDA to act as the authority for the market's vaults."
+      ],
+      "discriminator": [
+        103,
+        226,
+        97,
+        235,
+        200,
+        188,
+        251,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "issuer_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bond_mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  95,
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market_authority",
+          "docs": [
+            "It will own the AMM vaults and act as the mint authority for the bond."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "issuer_name",
+          "type": "string"
+        },
+        {
+          "name": "maturity_timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "coupon_rate_bps",
+          "type": "u16"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "MarketState",
+      "discriminator": [
+        0,
+        125,
+        123,
+        215,
+        95,
+        96,
+        164,
+        194
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "IssuerNameTooLong",
+      "msg": "Issuer name cannot be longer than 50 characters."
+    }
+  ],
+  "types": [
+    {
+      "name": "MarketState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "market_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bond_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "issuer_name",
+            "type": "string"
+          },
+          {
+            "name": "maturity_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "coupon_rate_bps",
+            "type": "u16"
+          },
+          {
+            "name": "is_matured",
+            "type": "bool"
+          },
+          {
+            "name": "market_bump",
+            "type": "u8"
+          },
+          {
+            "name": "market_authority_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

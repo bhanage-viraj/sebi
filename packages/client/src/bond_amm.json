@@ -1,0 +1,344 @@
+{
+  "address": "Fg6PaFpoGXkYsidMpWxTWqk6W2BeZ7FEfcYkgSQhZt5v",
+  "metadata": {
+    "name": "bond_amm",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Handles trading and lifecycle for a single bond market"
+  },
+  "instructions": [
+    {
+      "name": "initialize_amm",
+      "docs": [
+        "Initializes the AMM for a specific market, creating the vaults."
+      ],
+      "discriminator": [
+        44,
+        175,
+        253,
+        31,
+        47,
+        138,
+        50,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "amm_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  109,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.bond_mint",
+                "account": "MarketState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bond_mint",
+          "docs": [
+            "SPL Bond mint"
+          ]
+        },
+        {
+          "name": "bond_vault",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "quote_mint",
+          "docs": [
+            "SPL Quote mint"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "swap",
+      "docs": [
+        "Swaps one token for another in the liquidity pool."
+      ],
+      "discriminator": [
+        248,
+        198,
+        158,
+        145,
+        225,
+        117,
+        135,
+        200
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "market",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.bond_mint",
+                "account": "MarketState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_bond_ata",
+          "writable": true
+        },
+        {
+          "name": "user_quote_ata",
+          "writable": true
+        },
+        {
+          "name": "bond_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount_in",
+          "type": "u64"
+        },
+        {
+          "name": "swap_for_bond",
+          "type": "bool"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AmmState",
+      "discriminator": [
+        66,
+        127,
+        244,
+        168,
+        102,
+        12,
+        95,
+        2
+      ]
+    },
+    {
+      "name": "MarketState",
+      "discriminator": [
+        0,
+        125,
+        123,
+        215,
+        95,
+        96,
+        164,
+        194
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "AmmState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market",
+            "docs": [
+              "The associated market state account with all the bond's details."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amm_bump",
+            "docs": [
+              "The bump seed for the AMM state account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "market_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bond_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "issuer_name",
+            "type": "string"
+          },
+          {
+            "name": "maturity_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "coupon_rate_bps",
+            "type": "u16"
+          },
+          {
+            "name": "is_matured",
+            "type": "bool"
+          },
+          {
+            "name": "market_bump",
+            "type": "u8"
+          },
+          {
+            "name": "market_authority_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "FEE_BPS",
+      "type": "u16",
+      "value": "25"
+    }
+  ]
+}
