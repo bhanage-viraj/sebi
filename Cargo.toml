@@ -1,7 +1,6 @@
 [workspace]
 members = [
-    "programs/bond_factory",
-    "programs/bond_amm",
+    "programs/*",
 ]
 resolver = "2"
 

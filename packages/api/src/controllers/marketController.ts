@@ -1,61 +1,177 @@
 // packages/api/src/controllers/marketController.ts
 import { Request, Response } from 'express';
-import { BN } from '@coral-xyz/anchor';
-import { Keypair } from '@solana/web3.js';
-import { BondMarketClient } from '@bond-market/client';
-import Market from '../models/marketModel';
+import { Market, IMarket } from '../models/Market';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { v4 as uuidv4 } from 'uuid';
 
-// This should come from a secure secret manager or .env file in production
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
-if (!ADMIN_SECRET_KEY) {
-  throw new Error('ADMIN_SECRET_KEY is not set in environment variables.');
+interface CreateMarketRequest {
+  issuer: string;
+  bondName: string;
+  bondSymbol: string;
+  totalSupply: number;
+  maturityDate: string;
+  couponRate: number;
+  faceValue: number;
+  currentPrice: number;
 }
-const adminWallet = Keypair.fromSecretKey(new Uint8Array(JSON.parse(ADMIN_SECRET_KEY)));
 
-export const createMarket = async (req: Request, res: Response) => {
+export const createMarket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { issuerName, maturityTimestamp, couponRateBps, quoteMint } = req.body;
+    const {
+      issuer,
+      bondName,
+      bondSymbol,
+      totalSupply,
+      maturityDate,
+      couponRate,
+      faceValue,
+      currentPrice
+    }: CreateMarketRequest = req.body;
 
-    // --- Input Validation ---
-    if (!issuerName || !maturityTimestamp || couponRateBps === undefined || !quoteMint) {
-      return res.status(400).json({ error: 'Missing required fields.' });
+    // Validate required fields
+    if (!issuer || !bondName || !bondSymbol || !totalSupply || !maturityDate || 
+        couponRate === undefined || !faceValue || !currentPrice) {
+      res.status(400).json({
+        success: false,
+        error: 'Missing required fields'
+      });
+      return;
     }
 
-    // Initialize the client
-    // This assumes the client is configured for the correct network (e.g., devnet)
-    const client = new BondMarketClient(req.app.locals.solanaConnection, adminWallet);
-
-    // --- On-Chain Interaction ---
-    const result = await client.createMarket({
-      issuerName,
-      maturityTimestamp: new BN(maturityTimestamp),
-      couponRateBps,
-      quoteMint, // The public key of the quote mint (e.g., USDC)
-    });
-
-    if (!result.success || !result.marketPda || !result.bondMint) {
-      return res.status(500).json({ error: 'Failed to create market on-chain.', details: result.error });
+    // Validate issuer is a valid Solana public key
+    try {
+      new PublicKey(issuer);
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid issuer public key'
+      });
+      return;
     }
 
-    // --- Database Interaction ---
-    const newMarket = new Market({
-      marketPda: result.marketPda.toBase58(),
-      bondMint: result.bondMint.toBase58(),
-      issuerName,
-      couponRateBps,
-      maturityTimestamp: new Date(maturityTimestamp * 1000), // Convert Unix timestamp to JS Date
+    // Validate maturity date is in the future
+    const maturity = new Date(maturityDate);
+    if (maturity <= new Date()) {
+      res.status(400).json({
+        success: false,
+        error: 'Maturity date must be in the future'
+      });
+      return;
+    }
+
+    // Generate unique market ID
+    const marketId = uuidv4();
+
+    // Create market document
+    const market: IMarket = new Market({
+      marketId,
+      issuer,
+      bondName,
+      bondSymbol,
+      totalSupply,
+      maturityDate: maturity,
+      couponRate,
+      faceValue,
+      currentPrice,
+      totalBondsIssued: 0,
+      bondsSold: 0,
+      status: 'active'
     });
 
-    await newMarket.save();
+    // Save to database
+    await market.save();
+
+    console.log(`✅ Market created successfully: ${marketId}`);
 
     res.status(201).json({
-      message: 'Market created successfully',
-      market: newMarket,
-      transactionSignature: result.transactionSignature,
+      success: true,
+      data: {
+        marketId: market.marketId,
+        issuer: market.issuer,
+        bondName: market.bondName,
+        bondSymbol: market.bondSymbol,
+        totalSupply: market.totalSupply,
+        maturityDate: market.maturityDate,
+        couponRate: market.couponRate,
+        faceValue: market.faceValue,
+        currentPrice: market.currentPrice,
+        status: market.status,
+        createdAt: market.createdAt
+      }
     });
 
   } catch (error) {
-    console.error('Error in createMarket controller:', error);
-    res.status(500).json({ error: 'An unexpected error occurred.' });
+    console.error('❌ Error creating market:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const getMarkets = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { issuer, status, limit = 20, offset = 0 } = req.query;
+
+    // Build query
+    const query: any = {};
+    if (issuer) query.issuer = issuer;
+    if (status) query.status = status;
+
+    // Execute query with pagination
+    const markets = await Market
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip(Number(offset))
+      .exec();
+
+    const total = await Market.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: markets,
+      pagination: {
+        total,
+        limit: Number(limit),
+        offset: Number(offset),
+        hasMore: Number(offset) + Number(limit) < total
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching markets:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+export const getMarket = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { marketId } = req.params;
+
+    const market = await Market.findOne({ marketId }).exec();
+
+    if (!market) {
+      res.status(404).json({
+        success: false,
+        error: 'Market not found'
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: market
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching market:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
   }
 };

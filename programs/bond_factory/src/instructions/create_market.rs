@@ -5,13 +5,14 @@ use anchor_spl::{
 };
 use crate::state::MarketState;
 
-// FIX: The instruction macro must list ALL arguments passed to the handler.
 #[derive(Accounts)]
-#[instruction(issuer_name: String, maturity_timestamp: i64, coupon_rate_bps: u16)]
+#[instruction(issuer_name: String)]
 pub struct CreateMarket<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
+    // FIX: The market PDA is now seeded with the issuer_name, which is known beforehand.
+    // This removes the circular dependency.
     #[account(
         init,
         payer = admin,
@@ -21,6 +22,8 @@ pub struct CreateMarket<'info> {
     )]
     pub market: Account<'info, MarketState>,
 
+    // The mint for the new bond token. Its authority is the market_authority PDA,
+    // and its address is derived from the market's key, making it unique and predictable.
     #[account(
         init,
         payer = admin,
@@ -32,12 +35,14 @@ pub struct CreateMarket<'info> {
     pub bond_mint: Account<'info, Mint>,
 
     /// CHECK: The authority PDA is derived from the market account's key.
+    /// It will own the AMM vaults and act as the mint authority for the bond.
     #[account(
         seeds = [b"authority".as_ref(), market.key().as_ref()],
         bump
     )]
     pub market_authority: AccountInfo<'info>,
 
+    // The mint for the quote currency (e.g., USDC).
     pub quote_mint: Account<'info, Mint>,
 
     pub system_program: Program<'info, System>,
@@ -51,8 +56,10 @@ pub fn handler(
     maturity_timestamp: i64,
     coupon_rate_bps: u16,
 ) -> Result<()> {
+    // --- Data Validation ---
     require!(issuer_name.len() <= 50, CustomError::IssuerNameTooLong);
 
+    // --- Set Market State ---
     let market = &mut ctx.accounts.market;
     market.admin = ctx.accounts.admin.key();
     market.market_authority = ctx.accounts.market_authority.key();
@@ -63,8 +70,9 @@ pub fn handler(
     market.coupon_rate_bps = coupon_rate_bps;
     market.is_matured = false;
     
-    market.market_bump = *ctx.bumps.get("market").unwrap();
-    market.market_authority_bump = *ctx.bumps.get("market_authority").unwrap();
+    // Store all bumps correctly.
+    market.market_bump = ctx.bumps.market;
+    market.market_authority_bump = ctx.bumps.market_authority;
     
     msg!("Market created for issuer: {}", market.issuer_name);
     Ok(())

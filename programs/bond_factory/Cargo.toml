@@ -1,0 +1,21 @@
+[package]
+name = "bond_factory"
+version = "0.1.0"
+description = "Creates new bond markets"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "bond_factory"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = "0.31.1"
+anchor-spl = "0.31.1"
