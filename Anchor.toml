@@ -10,8 +10,8 @@ bond_factory = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
 bond_amm = "Fg6PaFpoGXkYsidMpWxTWqk6W2BeZ7FEfcYkgSQhZt5v"
 
 [programs.devnet]
-bond_factory = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
-bond_amm = "Fg6PaFpoGXkYsidMpWxTWqk6W2BeZ7FEfcYkgSQhZt5v"
+bond_factory = "EhxFepaeryGJh1S2g4JmQGcaXMtSK5akEF9fjwst2Qjb"
+bond_amm = "3YwVMmAgU9dCQaTSQb71FdqUrsrUvD6vGwbQAnBFvaBE"
 
 [registry]
 url = "https://api.apr.dev"
@@ -21,4 +21,4 @@ cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "npx --yes ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

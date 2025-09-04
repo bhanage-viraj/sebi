@@ -5,7 +5,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
+declare_id!("EhxFepaeryGJh1S2g4JmQGcaXMtSK5akEF9fjwst2Qjb");
 
 #[program]
 pub mod bond_factory {
